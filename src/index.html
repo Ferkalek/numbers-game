@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+
+    <meta property="og:title" content="Logic game NUMBERS">
+    <meta property="og:description" content="The task is to guess the programmed numbers with the exact sequence.">
+    <meta property="og:type" content="game">
+    <meta property="og:url" content="http://gnumbers.cc.ua/">
+    <meta property="og:image" content="http://gnumbers.cc.ua/images/screenshot.jpg">
+    <meta property="og:locale" content="en_GB">
+    <meta property="og:locale:alternate" content="uk_UA">
+    <meta property="og:locale:alternate" content="ru_RU">
+
+    <title>Logic game NUMBERS</title>
+    <link rel="shortcut icon" type="image/png" href="/images/favicon.ico"/>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons"
+          rel="stylesheet">
+    <link rel="stylesheet" href="css/main.css">
+</head>
+<body class="no-game">
+<div class="loader-wrap" id="loader">
+    <div class="loader-inner">
+        <i class="material-icons">loop</i>
+    </div>
+</div>
+<div class="main-wrap start-layout" id="wrap">
+    <div class="overlay" id="overlay"></div>
+    <div class="start-settings">
+        <div class="nav-settings">
+            <button class="btn-back back-left dark-btn"><i class="material-icons">arrow_back</i></button>
+
+            <div class="switcher-wrap">
+                <div class="switcher">
+                    <input type="radio" name="lang" id="en" value="en">
+                    <label for="en">En</label>
+                    <input type="radio" name="lang" id="uk" value="uk">
+                    <label for="uk">Uk</label>
+                    <input type="radio" name="lang" id="ru" value="ru" checked>
+                    <label for="ru">Ru</label>
+                    <div class="layout"></div>
+                </div>
+            </div>
+        </div>
+        <div class="layout-wrap">
+            <div class="layout-cont">
+                <div class="see-is-start">
+                    <h1 id="header-lg"></h1>
+                    <div class="isauth">
+                        <h3><span id="hi-lg"></span>, <span class="output-name-js"></span>!</h3>
+                        <p id="target-again-lg"></p>
+                        <div class="hidden" id="if-has-history-2">
+                            <h4 id="best-r-lg"></h4>
+                            <div class="history-wrap" id="results-history-2"></div>
+                        </div>
+                    </div>
+                    <div class="isauth-hide">
+                        <p id="target-lg"></p>
+                        <div class="name-wrap">
+                            <input type="text" id="name">
+                            <label for="name" id="your-name-lg"></label>
+                        </div>
+                    </div>
+                </div>
+                <div class="see-is-settings edit-name-wrap" id="edit-name-wrap">
+                    <h1 class="output-name-js"></h1>
+                    <input class="edit-name" type="text" id="new-name">
+                    <button class="edit-name-btn" type="button" id="edit-name"><i class="material-icons">edit</i></button>
+                </div>
+                <h4 id="level-lg"></h4>
+                <div class="switcher-wrap level-wrap">
+                    <div class="switcher">
+                        <input type="radio" name="level" id="s3" value="3">
+                        <label for="s3">3<i class="material-icons">star</i></label>
+                        <input type="radio" name="level" id="s4" value="4">
+                        <label for="s4">4<i class="material-icons">star</i></label>
+                        <input type="radio" name="level" id="s5" value="5" checked>
+                        <label for="s5">5<i class="material-icons">star</i></label>
+                        <div class="layout"></div>
+                    </div>
+                </div>
+                <div class="see-is-settings">
+                    <div class="hidden" id="if-has-history">
+                        <h3 id="best-r2-lg"></h3>
+                        <div class="history-wrap" id="results-history"></div>
+                    </div>
+                    <button type="button" class="color-btn" id="del-user"></button>
+                </div>
+                <div class="see-is-start">
+                    <button class="btn-start color-btn" id="btn-start"></button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="results">
+        <div class="nav-settings">
+            <button class="btn-back back-right dark-btn"><i class="material-icons">arrow_forward</i></button>
+        </div>
+
+        <div class="part-result">
+            <div class="vin-wrap" id="vin">
+                <h3 id="vin-text"></h3>
+                <button type="button" class="start-again color-btn"></button>
+                <div class="sharing">
+                    <a name="fb_share" type="button"></a>
+                    <script src="https://www.facebook.com/connect.php/js/FB.Share" type="text/javascript"></script>
+                </div>
+            </div>
+            <div class="legend">
+                <span><i class="material-icons">star_border</i>&nbsp;—&nbsp;<span id="ugadano"></span></span>
+                <span><i class="material-icons">star</i>&nbsp;—&nbsp;<span id="nameste"></span></span>
+            </div>
+            <div class="results-wrap">
+                <div class="head-results">
+                    <span class="material-icons">star_border</span>
+                    <span class="material-icons">star</span>
+                </div>
+                <ul class="result"></ul>
+            </div>
+        </div>
+
+    </div>
+    <div class="content">
+        <div class="nav">
+            <button class="btn-to-results light-btn" id="show-results"><i class="material-icons">arrow_back</i></button>
+            <button class="btn-menu light-btn" id="show-settings"><i class="material-icons">more_vert</i></button>
+        </div>
+        <div class="ui-game">
+            <div class="display-wrap">
+                <input type="text" id="display" disabled>
+            </div>
+            <div class="key-wrapper" id="key">
+                <button>1</button>
+                <button>2</button>
+                <button>3</button>
+                <button>4</button>
+                <button>5</button>
+                <button>6</button>
+                <button>7</button>
+                <button>8</button>
+                <button>9</button>
+                <button>0</button>
+            </div>
+            <button class="btn-clean" id="clean" disabled>C</button>
+            <button class="btn-enter" id="enter" disabled>Ok</button>
+        </div>
+        <button type="button" class="start-again color-btn"></button>
+    </div>
+    <div class="modal-wrap">
+        <div class="modal-overlay"></div>
+        <div class="modal">
+            <div class="modal-close c-focus">x</div>
+            <div class="modal-msg"></div>
+            <div class="modal-btn-wrap">
+                <button type="button" class="cancel-btn color-btn"></button>
+                <button type="button" class="confirm-btn color-btn"></button>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="js/main.js"></script>
+</body>
+</html>
