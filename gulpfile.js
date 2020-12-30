@@ -1,140 +1,101 @@
-'use strict';
+// https://webdesign-master.ru/blog/tools/gulp-4-lesson.html
 
-var gulp = require('gulp'),
-    watch = require('gulp-watch'),
-    prefixer = require('gulp-autoprefixer'),
-    uglify = require('gulp-uglify'),
-    sass = require('gulp-sass'),
-    // sourcemaps = require('gulp-sourcemaps'),
-    rigger = require('gulp-rigger'),
-    cssmin = require('gulp-minify-css'),
-    imagemin = require('gulp-imagemin'),
-    browserSync = require("browser-sync"),
-    reload = browserSync.reload,
-    pngcrush = require('imagemin-pngcrush');
+let preprocessor = "scss";
 
-var path = {
-    build: { //Тут мы укажем куда складывать готовые после сборки файлы
-        html: 'dist/',
-        js: 'dist/js/',
-        css: 'dist/css/',
-        img: 'dist/images/',
-        fonts: 'dist/fonts/'
-    },
-    src: { //Пути откуда брать исходники
-        html: 'src/*.html', //Синтаксис src/*.html говорит gulp что мы хотим взять все файлы с расширением .html
-        js: 'src/js/main.js',//В стилях и скриптах нам понадобятся только main файлы
-        scss: 'src/scss/*.scss',
-        img: 'src/images/**/*.*', //Синтаксис img/**/*.* означает - взять все файлы всех расширений из папки и из вложенных каталогов
-        fonts: 'src/fonts/**/*.*'
-    },
-    watch: { //Тут мы укажем, за изменением каких файлов мы хотим наблюдать
-        html: 'src/**/*.html',
-        js: 'src/js/**/*.js',
-        scss: 'src/scss/**/*.scss',
-        img: 'src/images/**/*.*',
-        fonts: 'src/fonts/**/*.*'
-    },
-    clean: './dist'
-};
+// Определяем константы Gulp
+const { src, dest, parallel, series, watch } = require("gulp");
 
-var config = {
-    server: {
-        baseDir: "./dist"
-    },
-    tunnel: false,
-    host: 'localhost',
-    port: 9000
-    //logPrefix: "Frontend_Devil"
-};
+// Подключаем Browsersync
+const browserSync = require("browser-sync").create();
 
-//Сбираем html
-gulp.task('html:build', function () {
-    gulp.src(path.src.html) //Выберем файлы по нужному пути
-        .pipe(rigger()) //Прогоним через rigger
-        .pipe(gulp.dest(path.build.html)) //Выплюнем их в папку build
-        .pipe(reload({stream: true})); //И перезагрузим наш сервер для обновлений
-});
+// Подключаем gulp-concat
+const concat = require("gulp-concat");
 
+// Подключаем gulp-uglify-es
+const uglify = require("gulp-uglify-es").default;
 
-//Собираем javascript
-gulp.task('js:build', function () {
-    gulp.src(path.src.js) //Найдем наш main файл
-        .pipe(rigger()) //Прогоним через rigger
-        // .pipe(sourcemaps.init()) //Инициализируем sourcemap
-        // .pipe(uglify()) //Сожмем наш js
-        // .pipe(sourcemaps.write()) //Пропишем карты
-        .pipe(gulp.dest(path.build.js)) //Выплюнем готовый файл в build
-        .pipe(reload({stream: true})); //И перезагрузим сервер
-});
+// Подключаем модули gulp-sass и gulp-less
+const scss = require("gulp-sass");
+const less = require("gulp-less");
 
+// Подключаем Autoprefixer
+const autoprefixer = require("gulp-autoprefixer");
 
-//Собираем стили
-gulp.task('scss:build', function () {
-    gulp.src(path.src.scss) //Выберем наш main.scss
-        // .pipe(sourcemaps.init()) //То же самое что и с js
-        .pipe(sass({ //Скомпилируем
-            outputStyle: 'expanded' //нужно для того, чтобы не выравнивало стили в одну строку
-        }).on('error', sass.logError))
-        .pipe(prefixer({
-          browsers: ["last 15 versions", "> 1%", "ie 8"],
-          cascade: false
-        //http://zencoder.ru/gulp/gulp-autoprefixer/
-        })) //Добавим вендорные префиксы
-        .pipe(cssmin()) //Сожмем
-        // .pipe(sourcemaps.write())
-        .pipe(gulp.dest(path.build.css)) //И в build
-        .pipe(reload({stream: true}));
-});
+// Подключаем модуль gulp-clean-css
+const cleancss = require("gulp-clean-css");
 
-//Собираем картинки
-gulp.task('img:build', function () {
-    return gulp.src('src/images/*.{jpg,png,gif,svg,ico}')
-        .pipe(imagemin({
-            progressive: true,
-            svgoPlugins: [{removeViewBox: false}],
-            use: [pngcrush()]
-        }))
-        .pipe(gulp.dest(path.build.img));
-});
+function browsersync() {
+  browserSync.init({
+    // Инициализация Browsersync
+    server: { baseDir: "src/" }, // Указываем папку сервера
+    notify: false, // Отключаем уведомления
+    online: true, // Режим работы: true или false
+  });
+}
 
-//Собираем шрифты
-gulp.task('fonts:build', function() {
-    gulp.src(path.src.fonts)
-        .pipe(gulp.dest(path.build.fonts))
-});
+function scripts() {
+  return src(["src/js/partials/lang.js", "src/js/partials/app.js"])
+    .pipe(concat("main.js")) // Конкатенируем в один файл
+    .pipe(uglify()) // Сжимаем JavaScript
+    .pipe(dest("js/")) // Выгружаем готовый файл в папку назначения
+    .pipe(browserSync.stream()); // Триггерим Browsersync для обновления страницы
+}
 
-gulp.task('build', [
-    'html:build',
-    'js:build',
-    'scss:build',
-    'fonts:build',
-    'img:build'
-]);
+function styles() {
+  return src("src/" + preprocessor + "/main." + preprocessor + "") // Выбираем источник: "src/sass/main.sass" или "src/less/main.less"
+    .pipe(eval(preprocessor)()) // Преобразуем значение переменной "preprocessor" в функцию
+    .pipe(concat("main.css")) // Конкатенируем в файл app.min.js
+    .pipe(
+      autoprefixer({ overrideBrowserslist: ["last 10 versions"], grid: true })
+    ) // Создадим префиксы с помощью Autoprefixer
+    .pipe(
+      cleancss({
+        level: { 1: { specialComments: 0 } } /* , format: 'beautify' */,
+      })
+    ) // Минифицируем стили
+    .pipe(dest("css/")) // Выгрузим результат в папку "css/"
+    .pipe(browserSync.stream()); // Сделаем инъекцию в браузер
+}
 
-//регулярное автообновление при малейшем изменении из уже прописанного, но нужно запускать в консоле команду gulp watch
-gulp.task('watch', function(){
-    watch([path.watch.html], function(event, cb) {
-        gulp.start('html:build');
-    });
-    watch([path.watch.scss], function(event, cb) {
-        gulp.start('scss:build');
-    });
-    watch([path.watch.js], function(event, cb) {
-        gulp.start('js:build');
-    });
-    watch([path.watch.img], function(event, cb) {
-        gulp.start('img:build');
-    });
-    watch([path.watch.fonts], function(event, cb) {
-        gulp.start('fonts:build');
-    });
-});
+function startwatch() {
+  // Выбираем все файлы JS в проекте, а затем исключим с суффиксом .min.js
+  watch(["src/**/*.js", "!src/**/*.min.js"], scripts);
 
-//livereload
-gulp.task('webserver', function () {
-    browserSync(config);
-});
+  // Мониторим файлы препроцессора на изменения
+  watch("src/**/" + preprocessor + "/**/*", styles);
 
-// gulp.task('default', ['build', 'watch']);
-gulp.task('default', ['build', 'webserver', 'watch']);
+  // Мониторим файлы HTML на изменения
+  watch("src/**/*.html").on("change", browserSync.reload);
+}
+
+function buildcopy() {
+  return src(
+    [
+      // Выбираем нужные файлы
+      "src/css/**/*.min.css",
+      "src/js/**/*.min.js",
+      "src/**/*.html",
+    ],
+    { base: "src" }
+  ) // Параметр "base" сохраняет структуру проекта при копировании
+    .pipe(dest("dist")); // Выгружаем в папку с финальной сборкой
+}
+
+function cleandist() {
+  return del("dist/**/*", { force: true }); // Удаляем всё содержимое папки "dist/"
+}
+
+// Экспортируем функцию browsersync() как таск browsersync. Значение после знака = это имеющаяся функция.
+exports.browsersync = browsersync;
+
+// Экспортируем функцию scripts() в таск scripts
+exports.scripts = scripts;
+
+// Экспортируем функцию styles() в таск styles
+exports.styles = styles;
+
+// Экспортируем дефолтный таск с нужным набором функций
+exports.default = parallel(scripts, styles, browsersync, startwatch);
+
+// Создаём новый таск "build", который последовательно выполняет нужные операции
+exports.build = series(cleandist, styles, scripts, buildcopy);
